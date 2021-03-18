@@ -38,17 +38,17 @@ replace:
  
 ## Deploy ethereum node
 
-1. download Geth 
+#### download Geth 
 `https://geth.ethereum.org/downloads/`
 
 (doc: `https://geth.ethereum.org/docs/interface/command-line-options`)
 
-2. `mkdir FirstEthBlockchain`
+#### extract, mkdir, create account 
+`mkdir FirstEthBlockchain`
 
-3. create account
 `./geth --datadir FirstEthBlockchain account new`
 
-4. create file genesis.json (specify public key of created account)
+#### create file genesis.json (specify public key of created account)
 ```
 {
   "config": {
@@ -70,18 +70,19 @@ replace:
 }
 ```
 
-5. Init
+#### init
 `./geth --datadir ./FirstEthBlockchain init genesis.json`
 
-6. start
+#### start node
 
 `./geth --rpc --rpccorsdomain="https://remix.ethereum.org" --allow-insecure-unlock --mine --rpcapi web3,eth,debug,personal,net --vmdebug --datadir ./FirstEthBlockchain console --dev console`
 
-7. console: 
+#### start mining 
+in geth console:
 
 `miner.start()`
  
-8. Cli 
+#### Cli 
 
 cli is same binary
 `./geth attach http://127.0.0.1:8545`

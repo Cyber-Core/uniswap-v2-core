@@ -104,7 +104,7 @@ transfer:
 	
 Tests contain two private keys for "wallet" and "other" accounts.
 These accounts must be created and have non-zero balance (for exclusion error "gas required exceeds allowance (0)").
-For decription private key this code may be used:
+For description private key this code may be used:
 ```	
    it('wallet', async () => {
 	 const js_w = "{\"address\":\"3b07948f3dda04bc8040b139ac06a68ce28301f2\",\"crypto\":{\"cipher\":\"aes-128-ctr\",\"ciphertext\":\"526621e3d63660ef12aca531f63a27da1ae3b0c985dee2ed5a83cb9ddbc7c0c1\",\"cipherparams\":{\"iv\":\"4d352cee67766e59cfadfcc5bea4030b\"},\"kdf\":\"scrypt\",\"kdfparams\":{\"dklen\":32,\"n\":262144,\"p\":1,\"r\":8,\"salt\":\"a072190a5e8342d633cd6ea2a17ce133b88498f4d2fbce4ae1e74cc0a8c5734d\"},\"mac\":\"35b65364d73d9463d4b36fc277d2ae34c767b5b3f1502245c8610183271f45e9\"},\"id\":\"7f465bb3-234b-4ea0-8552-bf335959d778\",\"version\":3}"

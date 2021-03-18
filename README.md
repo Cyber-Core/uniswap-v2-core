@@ -48,7 +48,7 @@ replace:
 3. create account
 `./geth --datadir FirstEthBlockchain account new`
 
-4.create file genesis.json (specify public key of created account)
+4. create file genesis.json (specify public key of created account)
 ```
 {
   "config": {
@@ -77,11 +77,10 @@ replace:
 
 `./geth --rpc --rpccorsdomain="https://remix.ethereum.org" --allow-insecure-unlock --mine --rpcapi web3,eth,debug,personal,net --vmdebug --datadir ./FirstEthBlockchain console --dev console`
 
-7. in console: 
+7. console: 
 
 `miner.start()`
  
-
 8. Cli 
 
 cli is same binary

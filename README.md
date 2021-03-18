@@ -23,7 +23,7 @@ The following assumes the use of `12=>node@>=10`.
 
 `yarn test`
 
-## patch before run on the ethereum node
+## Patch before run on the ethereum node
 file:
 `../node_modules/@ethereum-waffle/chai/dist/cjs/matchers/emit.js`
 
@@ -36,7 +36,7 @@ replace:
 `const derivedPromise = promise.then((tx) => contract.provider.waitForTransaction(tx.hash, 3) ).then((receipt) => {`
 
  
-## deploy ethereum node
+## Deploy ethereum node
 
 1. download Geth 
 `https://geth.ethereum.org/downloads/`
@@ -99,7 +99,7 @@ transfer:
 })`
 
 
-## precondition for tests
+## Precondition for tests
 	
 Tests contain two private keys for "wallet" and "other" accounts.
 These accounts must be created and have non-zero balance (for exclusion error "gas required exceeds allowance (0)").

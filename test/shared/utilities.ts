@@ -93,7 +93,8 @@ export async function getApprovalDigest(
 //     )
 //   })
 // }
-export async function mineBlock(provider: JsonRpcProvider, timestamp: number, offset: number) : Promise<number> {
+// export async function mineBlock(provider: JsonRpcProvider, timestamp: number, offset: number) : Promise<number> {
+export async function mineBlock(provider: JsonRpcProvider, offset: number)  {
     // const current = await provider.getBlock('latest')
     // let next = current
     // while (next.timestamp < current.timestamp + offset){
@@ -104,9 +105,10 @@ export async function mineBlock(provider: JsonRpcProvider, timestamp: number, of
 
     while (true){
         let block = await provider.getBlock('latest')
-        if (block.timestamp >= timestamp + offset){
-            return block.timestamp - timestamp
-            // break;
+        // if (block.timestamp >= timestamp + offset){
+        if (block.timestamp >= offset){
+            // return block.timestamp - timestamp
+            break;
         }
     }
 }

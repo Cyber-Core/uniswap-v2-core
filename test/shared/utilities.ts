@@ -93,17 +93,25 @@ export async function getApprovalDigest(
 //     )
 //   })
 // }
-export async function mineBlock(provider: JsonRpcProvider, offset: number) {
-    console.log( offset)
+export async function mineBlock(provider: JsonRpcProvider, timestamp: number, offset: number) : Promise<number> {
+    // const current = await provider.getBlock('latest')
+    // let next = current
+    // while (next.timestamp < current.timestamp + offset){
+    //     next = await provider.getBlock('latest')
+    //     // console.log(next.timestamp)
+    // }
+    // return next.timestamp - current.timestamp
+
     while (true){
         let block = await provider.getBlock('latest')
-        if (block.timestamp >= offset){
-            break;
+        if (block.timestamp >= timestamp + offset){
+            return block.timestamp - timestamp
+            // break;
         }
     }
 }
 
 
 export function encodePrice(reserve0: BigNumber, reserve1: BigNumber) {
-  return [reserve1.mul(bigNumberify(2).pow(112)).div(reserve0), reserve0.mul(bigNumberify(2).pow(112)).div(reserve1)]
+    return [reserve1.mul(bigNumberify(2).pow(112)).div(reserve0), reserve0.mul(bigNumberify(2).pow(112)).div(reserve1)]
 }

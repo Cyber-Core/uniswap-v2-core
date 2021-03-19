@@ -182,6 +182,7 @@ describe('UniswapV2Pair', () => {
     await addLiquidity(token0Amount, token1Amount)
 
     // ensure that setting price{0,1}CumulativeLast for the first time doesn't affect our gas math
+    mineBlock(provider, 1)
     // await mineBlock(provider, (await provider.getBlock('latest')).timestamp + 1)
     let id = await pair.sync(overrides)
     let receipt = await provider.waitForTransaction(id.hash, 3)
@@ -191,7 +192,8 @@ describe('UniswapV2Pair', () => {
     const expectedOutputAmount = bigNumberify('453305446940074565')
     id = await token1.transfer(pair.address, swapAmount)
     receipt = await provider.waitForTransaction(id.hash, 3)
-    await mineBlock(provider, (await provider.getBlock('latest')).timestamp + 1)
+    // await mineBlock(provider, (await provider.getBlock('latest')).timestamp + 1)
+    mineBlock(provider, 1)
     id = await pair.swap(expectedOutputAmount, 0, wallet.address, '0x', overrides)
     receipt = await provider.waitForTransaction(id.hash, 3)
     expect(receipt.gasUsed).to.eq(73462)
@@ -235,6 +237,7 @@ describe('UniswapV2Pair', () => {
 
     const blockTimestamp = (await pair.getReserves())[2]
     // await mineBlock(provider, blockTimestamp + 1)
+    mineBlock(provider, 1)
 
     let id = await pair.sync(overrides)
     let receipt = await provider.waitForTransaction(id.hash, 3)
@@ -250,6 +253,8 @@ describe('UniswapV2Pair', () => {
     receipt = await provider.waitForTransaction(id.hash, 3)
 
     // await mineBlock(provider, blockTimestamp + 10)
+    mineBlock(provider, 10)
+
     // swap to a new price eagerly instead of syncing
     id = await pair.swap(0, expandTo18Decimals(1), wallet.address, '0x', overrides) // make the price nice
     receipt = await provider.waitForTransaction(id.hash, 3)
@@ -259,6 +264,8 @@ describe('UniswapV2Pair', () => {
     expect((await pair.getReserves())[2]).to.eq(blockTimestamp + 10)
 
     // await mineBlock(provider, blockTimestamp + 20)
+    mineBlock(provider, 20)
+
     id = await pair.sync(overrides)
     receipt = await provider.waitForTransaction(id.hash, 3)
 

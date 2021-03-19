@@ -94,10 +94,12 @@ export async function getApprovalDigest(
 //   })
 // }
 export async function mineBlock(provider: JsonRpcProvider, offset: number) {
-    const current = await provider.getBlock('latest')
-    let next = current
-    while (next.timestamp < current.timestamp + offset){
-        next = await provider.getBlock('latest')
+    console.log( offset)
+    while (true){
+        let block = await provider.getBlock('latest')
+        if (block.timestamp >= offset){
+            break;
+        }
     }
 }
 

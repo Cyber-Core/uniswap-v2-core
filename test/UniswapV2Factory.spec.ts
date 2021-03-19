@@ -18,9 +18,6 @@ const TEST_ADDRESSES: [string, string] = [
 ]
 
 describe('UniswapV2Factory', () => {
-  function delay(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
-  }
   const provider = new providers.JsonRpcProvider("http://127.0.0.1:8545", {chainId:1, name:""});
   const wallet = new Wallet("0xa45bb678781eaebed1eaca0921efb31aaf66677345d1f60bf1af63d105548ead", provider)
   const other = new Wallet("0x1c00007f45bac5bf39ff1749cef735b37445ba39bc6511a5c0ef6ac15e5e1bd7", provider)
@@ -73,17 +70,15 @@ describe('UniswapV2Factory', () => {
 
   it('setFeeTo', async () => {
     await expect(factory.connect(other).setFeeTo(other.address)).to.be.revertedWith('UniswapV2: FORBIDDEN')
-    await delay(10000);
-    await factory.setFeeTo(wallet.address)
-    await delay(10000);
+    let id = await factory.setFeeTo(wallet.address)
+    let receipt = await provider.waitForTransaction(id.hash, 3)
     expect(await factory.feeTo()).to.eq(wallet.address)
   })
 
   it('setFeeToSetter', async () => {
     await expect(factory.connect(other).setFeeToSetter(other.address)).to.be.revertedWith('UniswapV2: FORBIDDEN')
-    await delay(10000);
-    await factory.setFeeToSetter(other.address)
-    await delay(10000);
+    let id = await factory.setFeeToSetter(other.address)
+    let receipt = await provider.waitForTransaction(id.hash, 3)
     expect(await factory.feeToSetter()).to.eq(other.address)
     await expect(factory.setFeeToSetter(wallet.address)).to.be.revertedWith('UniswapV2: FORBIDDEN')
   })

@@ -15,9 +15,6 @@ const TOTAL_SUPPLY = expandTo18Decimals(10000)
 const TEST_AMOUNT = expandTo18Decimals(10)
 
 describe('UniswapV2ERC20', () => {
-  function delay(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
-  }
   const provider = new providers.JsonRpcProvider("http://127.0.0.1:8545", {chainId:1, name:""});
   const wallet = new Wallet("0xa45bb678781eaebed1eaca0921efb31aaf66677345d1f60bf1af63d105548ead", provider)
   const other = new Wallet("0x1c00007f45bac5bf39ff1749cef735b37445ba39bc6511a5c0ef6ac15e5e1bd7", provider)
@@ -63,8 +60,9 @@ describe('UniswapV2ERC20', () => {
   })
 
   it('transfer', async () => {
-    expect(await token.transfer(other.address, TEST_AMOUNT))
-    await delay(10000);
+    await expect(token.transfer(other.address, TEST_AMOUNT))
+        .to.emit(token, 'Transfer')
+        .withArgs(wallet.address, other.address, TEST_AMOUNT)
     expect(await token.balanceOf(wallet.address)).to.eq(TOTAL_SUPPLY.sub(TEST_AMOUNT))
     expect(await token.balanceOf(other.address)).to.eq(TEST_AMOUNT)
   })
@@ -75,20 +73,22 @@ describe('UniswapV2ERC20', () => {
   })
 
   it('transferFrom', async () => {
-    await token.approve(other.address, TEST_AMOUNT)
-    await delay(10000);
-    expect(await token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT));
-    await delay(10000);
+    let id = await token.approve(other.address, TEST_AMOUNT)
+    let receipt = await provider.waitForTransaction(id.hash, 3)
+    await expect(token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT))
+        .to.emit(token, 'Transfer')
+        .withArgs(wallet.address, other.address, TEST_AMOUNT)
     expect(await token.allowance(wallet.address, other.address)).to.eq(0)
     expect(await token.balanceOf(wallet.address)).to.eq(TOTAL_SUPPLY.sub(TEST_AMOUNT))
     expect(await token.balanceOf(other.address)).to.eq(TEST_AMOUNT)
   })
 
   it('transferFrom:max', async () => {
-    await token.approve(other.address, MaxUint256)
-    await delay(10000);
-    expect(await token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT))
-    await delay(10000);
+    let id = await token.approve(other.address, MaxUint256)
+    let receipt = await provider.waitForTransaction(id.hash, 3)
+    await expect(token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT))
+        .to.emit(token, 'Transfer')
+        .withArgs(wallet.address, other.address, TEST_AMOUNT)
     expect(await token.allowance(wallet.address, other.address)).to.eq(MaxUint256)
     expect(await token.balanceOf(wallet.address)).to.eq(TOTAL_SUPPLY.sub(TEST_AMOUNT))
     expect(await token.balanceOf(other.address)).to.eq(TEST_AMOUNT)

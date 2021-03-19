@@ -237,7 +237,7 @@ describe('UniswapV2Pair', () => {
     // await mineBlock(provider, blockTimestamp + 1)
 
     let id = await pair.sync(overrides)
-    let eceipt = await provider.waitForTransaction(id.hash, 3)
+    let receipt = await provider.waitForTransaction(id.hash, 3)
 
 
     const initialPrice = encodePrice(token0Amount, token1Amount)

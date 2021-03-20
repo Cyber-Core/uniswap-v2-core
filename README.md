@@ -60,10 +60,21 @@ replace:
     "byzantiumBlock": 0,
     "constantinopleBlock": 0,
     "petersburgBlock": 0,
-    "ethash": {}
+    "istanbulBlock": 0,
+    "ethash": {},
+    "istanbul": {
+        "epoch": 30000,
+        "policy": 0,
+        "ceil2Nby3Block": 0
+      }
   },
-  "difficulty": "0x400",
-  "gasLimit": "8000000000",
+  "extraData": "0x0000000000000000000000000000000000000000000000000000000000000000f897f893946571d97f340c8495b661a823f2c2145ca47d63c2948157d4437104e3b8df4451a85f7b2438ef6699ff94b131288f355bc27090e542ae0be213c20350b76794b912de287f9b047b4228436e94b5b78e3ee1617194d8dba507e85f116b1f7e231ca8525fc9008a696694e36cbeb565b061217930767886474e3cde903ac594f512a992f3fb749857d758ffda1330e590fa915e80c0",
+  "gasLimit": "0xffffffffffff",
+  "difficulty": "0x1",
+  "mixHash": "0x63746963616c2062797a616e74696e65206661756c7420746f6c6572616e6365",
+  "nonce": "0x0",
+  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "timestamp": "0x00",
   "alloc": {
     "0x3b07948f3DDA04BC8040b139AC06a68CE28301F2":{"balance": "2000000000000000000000"}
   }

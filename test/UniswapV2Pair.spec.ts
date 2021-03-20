@@ -89,10 +89,10 @@ describe('UniswapV2Pair', () => {
       await addLiquidity(token0Amount, token1Amount)
       let id = await token0.transfer(pair.address, swapAmount)
       let receipt = await provider.waitForTransaction(id.hash, 3)
-      await expect(pair.swap(0, expectedOutputAmount.add(1), wallet.address, '0x', overrides)).to.be.revertedWith(
+      await expect(pair.swap(0, expectedOutputAmount.add(1), wallet.address, '0x')).to.be.revertedWith(
         'UniswapV2: K'
       )
-      id = await pair.swap(0, expectedOutputAmount, wallet.address, '0x', overrides)
+      id = await pair.swap(0, expectedOutputAmount, wallet.address, '0x')
       receipt = await provider.waitForTransaction(id.hash, 3)
     })
   })
@@ -110,10 +110,10 @@ describe('UniswapV2Pair', () => {
       let id = await token0.transfer(pair.address, inputAmount)
       let receipt = await provider.waitForTransaction(id.hash, 3)
 
-      await expect(pair.swap(outputAmount.add(1), 0, wallet.address, '0x', overrides)).to.be.revertedWith(
+      await expect(pair.swap(outputAmount.add(1), 0, wallet.address, '0x')).to.be.revertedWith(
         'UniswapV2: K'
       )
-      id = await pair.swap(outputAmount, 0, wallet.address, '0x', overrides)
+      id = await pair.swap(outputAmount, 0, wallet.address, '0x')
       receipt = await provider.waitForTransaction(id.hash, 3)
     })
   })

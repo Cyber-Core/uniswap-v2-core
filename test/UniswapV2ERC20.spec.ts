@@ -16,7 +16,7 @@ const TEST_AMOUNT = expandTo18Decimals(10)
 
 describe('UniswapV2ERC20', () => {
 
-  const provider_sol = new providers.JsonRpcProvider("http://127.0.0.1:9090/solana");
+  const provider_sol = new providers.JsonRpcProvider("http://127.0.0.1:9090/solana", {​​​​​​​chainId:111, name:""}​​​​​​​);
   const wallet = new Wallet("0xd191daa598a77767eae21d33c865422f95a01f705bc4fbef8271d46177b075be", provider_sol)
   const other = Wallet.createRandom().connect(provider_sol)
 
@@ -42,7 +42,7 @@ describe('UniswapV2ERC20', () => {
             ),
             keccak256(toUtf8Bytes(name)),
             keccak256(toUtf8Bytes('1')),
-            0,   // chainid
+            111,   // chainid
             token.address
           ]
         )

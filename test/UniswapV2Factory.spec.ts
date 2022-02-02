@@ -31,21 +31,21 @@ describe('UniswapV2Factory', () => {
   const other = new Wallet("0xdbd8ab1077d8f1c7378d3f9255863b2674087153cd311185e97c743c2783f82c", provider)
     
   const fetch = require('node-fetch');
-  let airdrop = {
+  let airdrop1 = {
     wallet: wallet.address,
     amount: 5
   };
   fetch('https://faucet:3333/request_neon', {
       method: 'POST',
-      body: JSON.stringify(airdrop),
+      body: JSON.stringify(airdrop1),
   });
-  let airdrop = {
+  let airdrop2 = {
     wallet: other.address,
     amount: 5
   };
   fetch('https://faucet:3333/request_neon', {
       method: 'POST',
-      body: JSON.stringify(airdrop),
+      body: JSON.stringify(airdrop2),
   });
 
   let factory: Contract

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -xeo pipefail
 
 TESTSET=${1:-}
 echo "\$TESTSET='$TESTSET'"

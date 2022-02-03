@@ -27,24 +27,6 @@ describe('UniswapV2ERC20', () => {
   const provider = new providers.JsonRpcProvider("http://127.0.0.1:9090/solana", { name: "solana", chainId: CHAIN_ID })
   const wallet = new Wallet("0xd191daa598a77767eae21d33c865422f95a01f705bc4fbef8271d46177b075be", provider)
   const other = new Wallet("0xdbd8ab1077d8f1c7378d3f9255863b2674087153cd311185e97c743c2783f82c", provider)
-    
-  const fetch = require('node-fetch');
-  let airdrop1 = {
-    wallet: wallet.address,
-    amount: 5
-  };
-  fetch('http://faucet:3333/request_neon', {
-      method: 'POST',
-      body: JSON.stringify(airdrop1),
-  });
-  let airdrop2 = {
-    wallet: other.address,
-    amount: 5
-  };
-  fetch('http://faucet:3333/request_neon', {
-      method: 'POST',
-      body: JSON.stringify(airdrop2),
-  });
 
   let token: Contract
   beforeEach(async () => {

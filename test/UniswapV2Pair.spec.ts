@@ -35,7 +35,7 @@ describe('UniswapV2Pair', () => {
     wallet: wallet.address,
     amount: 5
   };
-  fetch('https://faucet:3333/request_neon', {
+  fetch('http://faucet:3333/request_neon', {
       method: 'POST',
       body: JSON.stringify(airdrop1),
   });
@@ -43,7 +43,7 @@ describe('UniswapV2Pair', () => {
     wallet: other.address,
     amount: 5
   };
-  fetch('https://faucet:3333/request_neon', {
+  fetch('http://faucet:3333/request_neon', {
       method: 'POST',
       body: JSON.stringify(airdrop2),
   });

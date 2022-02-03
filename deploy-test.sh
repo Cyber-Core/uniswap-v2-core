@@ -4,7 +4,7 @@ set -euo pipefail
 TESTSET=${1:-}
 echo "\$TESTSET='$TESTSET'"
 
-if [[ -z "${FAUCET_URL}" ]]
+if [[ -z "$FAUCET_URL" ]]
 then
   echo 'FAUCET_URL is not set: OK'
 else

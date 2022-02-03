@@ -4,8 +4,7 @@ set -euo pipefail
 TESTSET=${1:-}
 echo "\$TESTSET='$TESTSET'"
 
-if [[ -z "$FAUCET_URL" ]]
-then
+if [[ -z "$FAUCET_URL" ]]; then
   echo 'FAUCET_URL is not set: OK'
 else
   curl -i -X POST -H "Content-Type: text/plain" "$FAUCET_URL/request_neon" -d '{ "wallet": "0xaA4d6f4FF831181A2bBfD4d62260DabDeA964fF1", "amount": 5 }'

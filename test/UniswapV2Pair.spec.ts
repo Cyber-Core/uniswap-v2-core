@@ -12,7 +12,7 @@ const MINIMUM_LIQUIDITY = bigNumberify(10).pow(3)
 chai.use(solidity)
 
 const overrides = {
-  gasLimit: 999999999999
+  gasLimit: 9999999999
 }
 const CHAIN_ID = 111
 

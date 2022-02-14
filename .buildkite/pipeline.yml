@@ -8,9 +8,9 @@ steps:
 
   - label: ":cop::skin-tone-2: deploy check"
     command: ".buildkite/steps/deploy-test.sh"
-    timeout: 120
+    timeout: 15
     agents:
-      queue: "testing"
+      queue: "testing2"
 
   - wait
 

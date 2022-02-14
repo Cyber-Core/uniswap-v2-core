@@ -45,15 +45,16 @@ export REVISION=$(git rev-parse HEAD)
 UNISWAP_V2_CORE_IMAGE=neonlabsorg/uniswap-v2-core:${IMAGETAG:-$REVISION}
 
 export PROXY_URL=http://127.0.0.1:9090/solana
+export FAUCET_URL=http://faucet:3333
 
 echo "Wait proxy..." && wait-for-proxy "$PROXY_URL"
 
 echo "Run tests..."
-docker run --rm -ti --network=host \
+docker run --rm -ti --network=container:proxy \
+     -e FAUCET_URL \
      --entrypoint ./deploy-test.sh \
      $UNISWAP_V2_CORE_IMAGE \
      ${EXTRA_ARGS:-"all"}
 
 echo "Run tests return"
 exit 0
-

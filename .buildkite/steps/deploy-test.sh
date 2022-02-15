@@ -28,8 +28,8 @@ case "${option}" in
 esac
 done
 
-export REVISION=latest
-docker run --rm --entrypoint cat neonlabsorg/proxy:latest proxy/docker-compose-test.yml > node-and-proxy.yml
+export PROXY_REVISION=ci-375-containers-issue
+docker run --rm --entrypoint cat neonlabsorg/proxy:latest proxy/docker-compose-test.yml | sed 's/\<REVISION\>/PROXY_REVISION/g' > node-and-proxy.yml
 
 docker-compose -f node-and-proxy.yml up -d
 

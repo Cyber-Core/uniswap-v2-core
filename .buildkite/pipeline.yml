@@ -1,6 +1,7 @@
 steps:
   - label: ":docker: build docker image"
     command:
+      - "sudo rm -rf /var/lib/buildkite-agent/builds/ci-test-runner*/cyberway/uniswapv2-core"
       - ".buildkite/steps/build-image.sh"
       - ".buildkite/steps/upload-image.sh"
 

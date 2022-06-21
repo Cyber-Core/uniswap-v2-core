@@ -84,7 +84,8 @@ describe('UniswapV2ERC20', () => {
   })
 
   it('transferFrom', async () => {
-    await token.approve(other.address, TEST_AMOUNT)
+    const tx = await token.approve(other.address, TEST_AMOUNT)
+    await tx.wait()
     await expect(token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT))
       .to.emit(token, 'Transfer')
       .withArgs(wallet.address, other.address, TEST_AMOUNT)
@@ -94,7 +95,8 @@ describe('UniswapV2ERC20', () => {
   })
 
   it('transferFrom:max', async () => {
-    await token.approve(other.address, MaxUint256)
+    const tx = await token.approve(other.address, MaxUint256)
+    await tx.wait()
     await expect(token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT))
       .to.emit(token, 'Transfer')
       .withArgs(wallet.address, other.address, TEST_AMOUNT)

@@ -32,8 +32,6 @@ export REVISION=latest
 docker pull neonlabsorg/proxy:latest
 docker run --rm --entrypoint cat neonlabsorg/proxy:latest proxy/docker-compose-test.yml > node-and-proxy.yml
 
-echo "Cleanup docker-compose..."
-docker-compose -f node-and-proxy.yml down -t 1
 docker-compose -f node-and-proxy.yml up -d
 
 function cleanup_docker {

@@ -2,7 +2,7 @@ import chai, { expect } from 'chai'
 import { Contract, providers, Wallet, BigNumber, constants } from 'ethers'
 import { solidity } from 'ethereum-waffle'
 
-import { expandTo18Decimals, encodePrice } from './shared/utilities'
+import { expandTo18Decimals, encodePrice, wait_for_tx_complete } from './shared/utilities'
 import { pairFixture } from './shared/fixtures'
 const { AddressZero } = constants
 
@@ -16,15 +16,6 @@ const overrides = {
 const CHAIN_ID = 111
 
 describe('UniswapV2Pair', () => {
-  // const provider = new MockProvider({
-  //   hardfork: 'istanbul',
-  //   mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',
-  //   gasLimit: 9999999
-  // })
-  // const [wallet, other] = provider.getWallets()
-
-  // const loadFixture = createFixtureLoader(provider, [wallet])
-  
   const provider = new providers.JsonRpcProvider("http://127.0.0.1:9090/solana", { name: "solana", chainId: CHAIN_ID });
   const wallet = new Wallet("0xd191daa598a77767eae21d33c865422f95a01f705bc4fbef8271d46177b075be", provider)
   const other = new Wallet("0xdbd8ab1077d8f1c7378d3f9255863b2674087153cd311185e97c743c2783f82c", provider)
@@ -46,12 +37,14 @@ describe('UniswapV2Pair', () => {
     const token0Amount = expandTo18Decimals(1)
     const token1Amount = expandTo18Decimals(4)
     const tx1 = await token0.transfer(pair.address, token0Amount)
-    await tx1.wait()
+    await wait_for_tx_complete(provider, tx1.hash)
     const tx2 = await token1.transfer(pair.address, token1Amount)
-    await tx2.wait()
+    await wait_for_tx_complete(provider, tx2.hash)
 
     const expectedLiquidity = expandTo18Decimals(2)
-    await expect(pair.mint(wallet.address, overrides))
+    const tx3 = await pair.mint(wallet.address, overrides)
+    await wait_for_tx_complete(provider, tx3.hash)
+    await expect(tx3)
       .to.emit(pair, 'Transfer')
       .withArgs(AddressZero, AddressZero, MINIMUM_LIQUIDITY)
       .to.emit(pair, 'Transfer')
@@ -72,11 +65,11 @@ describe('UniswapV2Pair', () => {
 
   async function addLiquidity(token0Amount: BigNumber, token1Amount: BigNumber) {
     const tx1 = await token0.transfer(pair.address, token0Amount)
-    await tx1.wait()
     const tx2 = await token1.transfer(pair.address, token1Amount)
-    await tx2.wait()
+    await wait_for_tx_complete(provider, tx1.hash)
+    await wait_for_tx_complete(provider, tx2.hash)
     const tx3 = await pair.mint(wallet.address, overrides)
-    await tx3.wait()
+    await wait_for_tx_complete(provider, tx3.hash)
   }
   const swapTestCases: BigNumber[][] = [
     [1, 5, 10, '1662497915624478906'],
@@ -94,12 +87,12 @@ describe('UniswapV2Pair', () => {
       const [swapAmount, token0Amount, token1Amount, expectedOutputAmount] = swapTestCase
       await addLiquidity(token0Amount, token1Amount)
       const tx1 = await token0.transfer(pair.address, swapAmount)
-      await tx1.wait()
+      await wait_for_tx_complete(provider, tx1.hash)
       await expect(pair.swap(0, expectedOutputAmount.add(1), wallet.address, '0x', overrides)).to.be.revertedWith(
         'NeonswapV2: K'
       )
       const tx2 = await pair.swap(0, expectedOutputAmount, wallet.address, '0x', overrides)
-      await tx2.wait()
+      await wait_for_tx_complete(provider, tx2.hash)
     })
   })
 
@@ -114,12 +107,12 @@ describe('UniswapV2Pair', () => {
       const [outputAmount, token0Amount, token1Amount, inputAmount] = optimisticTestCase
       await addLiquidity(token0Amount, token1Amount)
       const tx1 = await token0.transfer(pair.address, inputAmount)
-      await tx1.wait()
+      await wait_for_tx_complete(provider, tx1.hash)
       await expect(pair.swap(outputAmount.add(1), 0, wallet.address, '0x', overrides)).to.be.revertedWith(
         'NeonswapV2: K'
       )
       const tx2 = await pair.swap(outputAmount, 0, wallet.address, '0x', overrides)
-      await tx2.wait()
+      await wait_for_tx_complete(provider, tx2.hash)
     })
   })
 
@@ -131,8 +124,10 @@ describe('UniswapV2Pair', () => {
     const swapAmount = expandTo18Decimals(1)
     const expectedOutputAmount = BigNumber.from('1662497915624478906')
     const tx = await token0.transfer(pair.address, swapAmount)
-    await tx.wait()
-    await expect(pair.swap(0, expectedOutputAmount, wallet.address, '0x', overrides))
+    await wait_for_tx_complete(provider, tx.hash)
+    const tx1 = await pair.swap(0, expectedOutputAmount, wallet.address, '0x', overrides)
+    await wait_for_tx_complete(provider, tx1.hash)
+    await expect(tx1)
       .to.emit(token1, 'Transfer')
       .withArgs(pair.address, wallet.address, expectedOutputAmount)
       .to.emit(pair, 'Sync')
@@ -159,8 +154,10 @@ describe('UniswapV2Pair', () => {
     const swapAmount = expandTo18Decimals(1)
     const expectedOutputAmount = BigNumber.from('453305446940074565')
     const tx = await token1.transfer(pair.address, swapAmount)
-    await tx.wait()
-    await expect(pair.swap(expectedOutputAmount, 0, wallet.address, '0x', overrides))
+    await wait_for_tx_complete(provider, tx.hash)
+    const tx1 = await pair.swap(expectedOutputAmount, 0, wallet.address, '0x', overrides)
+    await wait_for_tx_complete(provider, tx1.hash)
+    await expect(tx1)
       .to.emit(token0, 'Transfer')
       .withArgs(pair.address, wallet.address, expectedOutputAmount)
       .to.emit(pair, 'Sync')
@@ -191,10 +188,10 @@ describe('UniswapV2Pair', () => {
     const swapAmount = expandTo18Decimals(1)
     const expectedOutputAmount = BigNumber.from('453305446940074565')
     const tx1 = await token1.transfer(pair.address, swapAmount)
-    await tx1.wait()
+    await wait_for_tx_complete(provider, tx1.hash)
     // await mineBlock(provider, (await provider.getBlock('latest')).timestamp + 1)
     const tx2 = await pair.swap(expectedOutputAmount, 0, wallet.address, '0x', overrides)
-    await tx2.wait()
+    await wait_for_tx_complete(provider, tx2.hash)
     // expect(receipt.gasUsed).to.eq(73462)
   })
 
@@ -205,8 +202,10 @@ describe('UniswapV2Pair', () => {
 
     const expectedLiquidity = expandTo18Decimals(3)
     const tx = await pair.transfer(pair.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
-    await tx.wait()
-    await expect(pair.burn(wallet.address, overrides))
+    await wait_for_tx_complete(provider, tx.hash)
+    const tx1 = await pair.burn(wallet.address, overrides)
+    await wait_for_tx_complete(provider, tx1.hash)
+    await expect(tx1)
       .to.emit(pair, 'Transfer')
       .withArgs(pair.address, AddressZero, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
       .to.emit(token0, 'Transfer')
@@ -239,13 +238,13 @@ describe('UniswapV2Pair', () => {
     await addLiquidity(token0Amount, token1Amount)
 
     const reserves0 = (await pair.getReserves())
-    await sleep(1000);
+    await sleep(500);
     //await mineBlock(provider, blockTimestamp + 1)
 
     const tx1 = await pair.sync(overrides)
-    await tx1.wait()
+    await wait_for_tx_complete(provider, tx1.hash)
     const reserves1 = (await pair.getReserves())
-    await sleep(1000);
+    await sleep(500);
 
     const initialPrice = encodePrice(token0Amount, token1Amount)
     const timeElapsed1 = reserves1[2] - reserves0[2]
@@ -256,13 +255,13 @@ describe('UniswapV2Pair', () => {
 
     const swapAmount = expandTo18Decimals(3)
     const tx2 = await token0.transfer(pair.address, swapAmount)
-    await tx2.wait()
+    await wait_for_tx_complete(provider, tx2.hash)
     //await mineBlock(provider, blockTimestamp + 10)
     // swap to a new price eagerly instead of syncing
     const tx3 = await pair.swap(0, expandTo18Decimals(1), wallet.address, '0x', overrides) // make the price nice
-    await tx3.wait()
+    await wait_for_tx_complete(provider, tx3.hash)
     const reserves2 = (await pair.getReserves())
-    await sleep(1000);
+    await sleep(500);
 
     const timeElapsed2 = reserves2[2] - reserves1[2]
     expect(timeElapsed2).to.not.eq(0)
@@ -272,7 +271,7 @@ describe('UniswapV2Pair', () => {
 
     //await mineBlock(provider, blockTimestamp + 20)
     const tx4 = await pair.sync(overrides)
-    await tx4.wait()
+    await wait_for_tx_complete(provider, tx4.hash)
     const reserves3 = (await pair.getReserves())
 
     const newPrice = encodePrice(expandTo18Decimals(6), expandTo18Decimals(2))
@@ -291,15 +290,15 @@ describe('UniswapV2Pair', () => {
     const swapAmount = expandTo18Decimals(1)
     const expectedOutputAmount = BigNumber.from('996006981039903216')
     const tx1 = await token1.transfer(pair.address, swapAmount)
-    await tx1.wait()
+    await wait_for_tx_complete(provider, tx1.hash)
     const tx2 = await pair.swap(expectedOutputAmount, 0, wallet.address, '0x', overrides)
-    await tx2.wait()
+    await wait_for_tx_complete(provider, tx2.hash)
 
     const expectedLiquidity = expandTo18Decimals(1000)
     const tx3 = await pair.transfer(pair.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
-    await tx3.wait()
+    await wait_for_tx_complete(provider, tx3.hash)
     const tx4 = await pair.burn(wallet.address, overrides)
-    await tx4.wait()
+    await wait_for_tx_complete(provider, tx4.hash)
     expect(await pair.totalSupply()).to.eq(MINIMUM_LIQUIDITY)
   })
 
@@ -313,15 +312,15 @@ describe('UniswapV2Pair', () => {
     const swapAmount = expandTo18Decimals(1)
     const expectedOutputAmount = BigNumber.from('996006981039903216')
     const tx1 = await token1.transfer(pair.address, swapAmount)
-    await tx1.wait()
+    await wait_for_tx_complete(provider, tx1.hash)
     const tx2 = await pair.swap(expectedOutputAmount, 0, wallet.address, '0x', overrides)
-    await tx2.wait()
+    await wait_for_tx_complete(provider, tx2.hash)
 
     const expectedLiquidity = expandTo18Decimals(1000)
     const tx3 = await pair.transfer(pair.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
-    await tx3.wait()
+    await wait_for_tx_complete(provider, tx3.hash)
     const tx4 = await pair.burn(wallet.address, overrides)
-    await tx4.wait()
+    await wait_for_tx_complete(provider, tx4.hash)
     expect(await pair.totalSupply()).to.eq(MINIMUM_LIQUIDITY.add('249750499251388'))
     expect(await pair.balanceOf(other.address)).to.eq('249750499251388')
 

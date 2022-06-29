@@ -2,7 +2,7 @@ import chai, { expect } from 'chai'
 import { Contract, providers, Wallet, BigNumber, constants } from 'ethers'
 import { solidity } from 'ethereum-waffle'
 
-import { expandTo18Decimals, encodePrice, wait_for_tx_complete } from './shared/utilities'
+import { expandTo18Decimals, encodePrice, wait_for_tx_complete, sleep } from './shared/utilities'
 import { pairFixture } from './shared/fixtures'
 const { AddressZero } = constants
 
@@ -228,23 +228,18 @@ describe('UniswapV2Pair', () => {
   })
 
   it('price{0,1}CumulativeLast', async () => {
-    function sleep(ms: number) {
-      return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-      });
-    }
     const token0Amount = expandTo18Decimals(3)
     const token1Amount = expandTo18Decimals(3)
     await addLiquidity(token0Amount, token1Amount)
 
     const reserves0 = (await pair.getReserves())
-    await sleep(500);
+    await sleep(1000);
     //await mineBlock(provider, blockTimestamp + 1)
 
     const tx1 = await pair.sync(overrides)
     await wait_for_tx_complete(provider, tx1.hash)
     const reserves1 = (await pair.getReserves())
-    await sleep(500);
+    await sleep(1000);
 
     const initialPrice = encodePrice(token0Amount, token1Amount)
     const timeElapsed1 = reserves1[2] - reserves0[2]
@@ -261,7 +256,7 @@ describe('UniswapV2Pair', () => {
     const tx3 = await pair.swap(0, expandTo18Decimals(1), wallet.address, '0x', overrides) // make the price nice
     await wait_for_tx_complete(provider, tx3.hash)
     const reserves2 = (await pair.getReserves())
-    await sleep(500);
+    await sleep(1000);
 
     const timeElapsed2 = reserves2[2] - reserves1[2]
     expect(timeElapsed2).to.not.eq(0)

@@ -98,6 +98,12 @@ export function encodePrice(reserve0: BigNumber, reserve1: BigNumber) {
   return [reserve1.mul(BigNumber.from(2).pow(112)).div(reserve0), reserve0.mul(BigNumber.from(2).pow(112)).div(reserve1)]
 }
 
+export async function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 export async function wait_for_tx_complete(provider: Provider, transactonHash: string) {
   const MAX_WAIT_TIMEOUT = 30000
   const WAIT_TIMEOUT = 100
@@ -107,7 +113,7 @@ export async function wait_for_tx_complete(provider: Provider, transactonHash: s
     if (transactionReceipt != null) {
       break;
     }
-    await new Promise(f => setTimeout(f, WAIT_TIMEOUT));
+    await sleep(WAIT_TIMEOUT)
     timeout += WAIT_TIMEOUT
   }
 }

@@ -33,8 +33,7 @@ export NEON_EVM_COMMIT=latest
 export FAUCET_COMMIT=latest
 docker pull neonlabsorg/proxy:latest
 docker run --rm --entrypoint cat neonlabsorg/proxy:latest proxy/docker-compose-test.yml > node-and-proxy.yml
-
-docker-compose -f node-and-proxy.yml up -d
+docker-compose -f node-and-proxy.yml pull
 
 function cleanup_docker {
     echo "Cleanup docker-compose..."
@@ -42,10 +41,16 @@ function cleanup_docker {
     echo "Cleanup docker-compose done."
 }
 trap cleanup_docker EXIT
-sleep 10
 
-export REVISION=$(git rev-parse HEAD)
-UNISWAP_V2_CORE_IMAGE=neonlabsorg/uniswap-v2-core:${IMAGETAG:-$REVISION}
+echo "Cleanup docker-compose..."
+docker-compose -f node-and-proxy.yml down -t 1
+if ! docker-compose -f node-and-proxy.yml up -d; then
+  echo "docker-compose failed to start"
+  exit 1;
+fi
+
+export UNISWAP_REVISION=$(git rev-parse HEAD)
+UNISWAP_V2_CORE_IMAGE=neonlabsorg/uniswap-v2-core:${IMAGETAG:-$UNISWAP_REVISION}
 
 export PROXY_URL=http://127.0.0.1:9090/solana
 

@@ -105,15 +105,15 @@ export async function sleep(ms: number) {
 }
 
 export async function wait_for_tx_complete(provider: Provider, transactonHash: string) {
-  const MAX_WAIT_TIMEOUT = 30000
-  const WAIT_TIMEOUT = 100
+  const MAX_WAIT_TIMEOUT_MSEC = 30000
+  const WAIT_TIMEOUT_MSEC = 100
   let timeout = 0
-  while(timeout < MAX_WAIT_TIMEOUT) { 
+  while(timeout < MAX_WAIT_TIMEOUT_MSEC) { 
     const transactionReceipt = await provider.getTransactionReceipt(transactonHash);
     if (transactionReceipt != null) {
       break;
     }
-    await sleep(WAIT_TIMEOUT)
-    timeout += WAIT_TIMEOUT
+    await sleep(WAIT_TIMEOUT_MSEC)
+    timeout += WAIT_TIMEOUT_MSEC
   }
 }

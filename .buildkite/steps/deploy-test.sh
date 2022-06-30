@@ -37,8 +37,10 @@ docker-compose -f node-and-proxy.yml pull
 
 function cleanup_docker {
     echo "Cleanup docker-compose..."
-    docker-compose -f node-and-proxy.yml down --rmi 'all'
+    docker-compose -f node-and-proxy.yml down -t 1
     echo "Cleanup docker-compose done."
+    echo "Removing temporary data volumes..."
+    docker volume prune -f
 }
 trap cleanup_docker EXIT
 

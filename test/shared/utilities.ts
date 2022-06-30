@@ -1,4 +1,5 @@
 import { BigNumber, Contract, utils } from 'ethers'
+import { Provider } from "@ethersproject/abstract-provider";
 const {
   getAddress,
   keccak256,
@@ -95,4 +96,24 @@ export async function getApprovalDigest(
 
 export function encodePrice(reserve0: BigNumber, reserve1: BigNumber) {
   return [reserve1.mul(BigNumber.from(2).pow(112)).div(reserve0), reserve0.mul(BigNumber.from(2).pow(112)).div(reserve1)]
+}
+
+export async function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+export async function wait_for_tx_complete(provider: Provider, transactonHash: string) {
+  const MAX_WAIT_TIMEOUT_MSEC = 30000
+  const WAIT_TIMEOUT_MSEC = 100
+  let timeout = 0
+  while(timeout < MAX_WAIT_TIMEOUT_MSEC) { 
+    const transactionReceipt = await provider.getTransactionReceipt(transactonHash);
+    if (transactionReceipt != null) {
+      break;
+    }
+    await sleep(WAIT_TIMEOUT_MSEC)
+    timeout += WAIT_TIMEOUT_MSEC
+  }
 }

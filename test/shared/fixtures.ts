@@ -2,7 +2,7 @@ import { Contract, Wallet, providers } from 'ethers'
 const { JsonRpcProvider } = providers
 import { deployContract } from 'ethereum-waffle'
 
-import { expandTo18Decimals } from './utilities'
+import { expandTo18Decimals, wait_for_tx_complete } from './utilities'
 
 import ERC20 from '../../build/ERC20.json'
 import UniswapV2Factory from '../../build/UniswapV2Factory.json'
@@ -34,7 +34,7 @@ export async function pairFixture(provider: InstanceType<typeof JsonRpcProvider>
   const tokenB = await deployContract(wallet, ERC20, [expandTo18Decimals(10000)], overrides)
 
   const tx = await factory.createPair(tokenA.address, tokenB.address, overrides)
-  await tx.wait()
+  await wait_for_tx_complete(provider, tx.hash)
 
   const pairAddress = await factory.getPair(tokenA.address, tokenB.address)
   const pair = new Contract(pairAddress, JSON.stringify(UniswapV2Pair.abi), provider).connect(wallet)

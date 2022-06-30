@@ -4,7 +4,7 @@ import { BigNumber, Contract, providers, Wallet, utils, constants } from 'ethers
 import { solidity, deployContract } from 'ethereum-waffle'
 import { ecsign } from 'ethereumjs-util'
 
-import { expandTo18Decimals, getApprovalDigest } from './shared/utilities'
+import { expandTo18Decimals, getApprovalDigest, wait_for_tx_complete } from './shared/utilities'
 
 import ERC20 from '../build/ERC20.json'
 
@@ -19,13 +19,6 @@ const TEST_AMOUNT = expandTo18Decimals(10)
 const CHAIN_ID = 111
 
 describe('UniswapV2ERC20', () => {
-  // const provider = new MockProvider({
-  //   hardfork: 'istanbul',
-  //   mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',
-  //   gasLimit: 9999999
-  // })
-  // const [wallet, other] = provider.getWallets()
-
   const provider = new providers.JsonRpcProvider("http://127.0.0.1:9090/solana", { name: "solana", chainId: CHAIN_ID })
   const wallet = new Wallet("0xd191daa598a77767eae21d33c865422f95a01f705bc4fbef8271d46177b075be", provider)
   const other = new Wallet("0xdbd8ab1077d8f1c7378d3f9255863b2674087153cd311185e97c743c2783f82c", provider)
@@ -64,14 +57,18 @@ describe('UniswapV2ERC20', () => {
   })
 
   it('approve', async () => {
-    await expect(token.approve(other.address, TEST_AMOUNT))
+    const tx = await token.approve(other.address, TEST_AMOUNT);
+    await wait_for_tx_complete(provider, tx.hash)
+    await expect(tx)
       .to.emit(token, 'Approval')
       .withArgs(wallet.address, other.address, TEST_AMOUNT)
     expect(await token.allowance(wallet.address, other.address)).to.eq(TEST_AMOUNT)
   })
 
   it('transfer', async () => {
-    await expect(token.transfer(other.address, TEST_AMOUNT))
+    const tx = await token.transfer(other.address, TEST_AMOUNT);
+    await wait_for_tx_complete(provider, tx.hash)
+    await expect(tx)
       .to.emit(token, 'Transfer')
       .withArgs(wallet.address, other.address, TEST_AMOUNT)
     expect(await token.balanceOf(wallet.address)).to.eq(TOTAL_SUPPLY.sub(TEST_AMOUNT))
@@ -85,8 +82,10 @@ describe('UniswapV2ERC20', () => {
 
   it('transferFrom', async () => {
     const tx = await token.approve(other.address, TEST_AMOUNT)
-    await tx.wait()
-    await expect(token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT))
+    await wait_for_tx_complete(provider, tx.hash)
+    const tx1 = await token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT)
+    await wait_for_tx_complete(provider, tx1.hash)
+    await expect(tx1)
       .to.emit(token, 'Transfer')
       .withArgs(wallet.address, other.address, TEST_AMOUNT)
     expect(await token.allowance(wallet.address, other.address)).to.eq(0)
@@ -96,8 +95,10 @@ describe('UniswapV2ERC20', () => {
 
   it('transferFrom:max', async () => {
     const tx = await token.approve(other.address, MaxUint256)
-    await tx.wait()
-    await expect(token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT))
+    await wait_for_tx_complete(provider, tx.hash)
+    const tx1 = await token.connect(other).transferFrom(wallet.address, other.address, TEST_AMOUNT)
+    await wait_for_tx_complete(provider, tx1.hash)
+    await expect(tx1)
       .to.emit(token, 'Transfer')
       .withArgs(wallet.address, other.address, TEST_AMOUNT)
     expect(await token.allowance(wallet.address, other.address)).to.eq(MaxUint256)
@@ -118,7 +119,9 @@ describe('UniswapV2ERC20', () => {
 
     const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(wallet.privateKey.slice(2), 'hex'))
 
-    await expect(token.permit(wallet.address, other.address, TEST_AMOUNT, deadline, v, hexlify(r), hexlify(s)))
+    const tx = await token.permit(wallet.address, other.address, TEST_AMOUNT, deadline, v, hexlify(r), hexlify(s))
+    await wait_for_tx_complete(provider, tx.hash)
+    await expect(tx)
       .to.emit(token, 'Approval')
       .withArgs(wallet.address, other.address, TEST_AMOUNT)
     expect(await token.allowance(wallet.address, other.address)).to.eq(TEST_AMOUNT)

@@ -3,7 +3,7 @@ import { BigNumber, Contract, providers, Wallet, constants } from 'ethers'
 const { AddressZero } = constants
 import { solidity } from 'ethereum-waffle'
 
-import { getCreate2Address } from './shared/utilities'
+import { getCreate2Address, wait_for_tx_complete } from './shared/utilities'
 import { factoryFixture } from './shared/fixtures'
 
 import UniswapV2Pair from '../build/UniswapV2Pair.json'
@@ -17,14 +17,6 @@ const TEST_ADDRESSES: [string, string] = [
 const CHAIN_ID = 111
 
 describe('UniswapV2Factory', () => {
-  // const provider = new MockProvider({
-  //   hardfork: 'istanbul',
-  //   mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',
-  //   gasLimit: 9999999
-  // })
-  // const [wallet, other] = provider.getWallets()
-  // const loadFixture = createFixtureLoader(provider, [wallet, other])
-
   const provider = new providers.JsonRpcProvider("http://127.0.0.1:9090/solana", { name: "solana", chainId: CHAIN_ID })
   const wallet = new Wallet("0xd191daa598a77767eae21d33c865422f95a01f705bc4fbef8271d46177b075be", provider)
   const other = new Wallet("0xdbd8ab1077d8f1c7378d3f9255863b2674087153cd311185e97c743c2783f82c", provider)
@@ -45,7 +37,9 @@ describe('UniswapV2Factory', () => {
   async function createPair(tokens: [string, string]) {
     const bytecode = `0x${UniswapV2Pair.evm.bytecode.object}`
     const create2Address = getCreate2Address(factory.address, tokens, bytecode)
-    await expect(factory.createPair(...tokens))
+    const tx = await factory.createPair(...tokens)
+    await wait_for_tx_complete(provider, tx.hash)
+    await expect(tx)
       .to.emit(factory, 'PairCreated')
       .withArgs(TEST_ADDRESSES[0], TEST_ADDRESSES[1], create2Address, BigNumber.from(1))
 
@@ -72,21 +66,21 @@ describe('UniswapV2Factory', () => {
 
   it('createPair:gas', async () => {
     const tx = await factory.createPair(...TEST_ADDRESSES)
-    const receipt = await tx.wait()
+    await wait_for_tx_complete(provider, tx.hash)
     // expect(receipt.gasUsed).to.eq(2512920)
   })
 
   it('setFeeTo', async () => {
     await expect(factory.connect(other).setFeeTo(other.address)).to.be.revertedWith('NeonswapV2: FORBIDDEN')
     const tx = await factory.setFeeTo(wallet.address)
-    await tx.wait()
+    await wait_for_tx_complete(provider, tx.hash)
     expect(await factory.feeTo()).to.eq(wallet.address)
   })
 
   it('setFeeToSetter', async () => {
     await expect(factory.connect(other).setFeeToSetter(other.address)).to.be.revertedWith('NeonswapV2: FORBIDDEN')
     const tx = await factory.setFeeToSetter(other.address)
-    await tx.wait()
+    await wait_for_tx_complete(provider, tx.hash)
     expect(await factory.feeToSetter()).to.eq(other.address)
     await expect(factory.setFeeToSetter(wallet.address)).to.be.revertedWith('NeonswapV2: FORBIDDEN')
   })

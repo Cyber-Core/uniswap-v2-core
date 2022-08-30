@@ -108,12 +108,13 @@ export async function wait_for_tx_complete(provider: Provider, transactonHash: s
   const MAX_WAIT_TIMEOUT_MSEC = 30000
   const WAIT_TIMEOUT_MSEC = 100
   let timeout = 0
-  while(timeout < MAX_WAIT_TIMEOUT_MSEC) { 
+  while (timeout < MAX_WAIT_TIMEOUT_MSEC) { 
     const transactionReceipt = await provider.getTransactionReceipt(transactonHash);
     if (transactionReceipt != null) {
-      break;
+      return;
     }
     await sleep(WAIT_TIMEOUT_MSEC)
     timeout += WAIT_TIMEOUT_MSEC
   }
+  throw new Error('Timeout exceeded')
 }

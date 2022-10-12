@@ -54,7 +54,7 @@ fi
 export UNISWAP_REVISION=$(git rev-parse HEAD)
 UNISWAP_V2_CORE_IMAGE=neonlabsorg/uniswap-v2-core:${IMAGETAG:-$UNISWAP_REVISION}
 
-export PROXY_URL=http://127.0.0.1:9090/solana
+export PROXY_URL=http://proxy:9090/solana
 
 echo "Wait proxy..." && wait-for-proxy "$PROXY_URL"
 
